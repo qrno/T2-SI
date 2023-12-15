@@ -1,5 +1,24 @@
 %include "io.mac"
 
+; M
+%macro PUSH_ALL 0
+  push ebp
+  mov ebp, esp
+  push eax
+  push ebx
+  push ecx
+  push edx
+%endmacro
+
+%macro POP_ALL 0
+  pop edx
+  pop ecx
+  pop ebx
+  pop eax
+  pop ebp
+%endmacro
+
+
 section .data
   M_name  db "Bem vindo. Digite seu nome: ",0
   M_name_len dd 29
@@ -72,8 +91,7 @@ _start:
 ;   push DWORD [M_name_len]
 ;   call print
 print:
-  push ebp
-  mov ebp, esp
+  PUSH_ALL
 
   mov eax, 4
   mov ebx, 1
@@ -81,7 +99,7 @@ print:
   mov edx,[ebp + 8]
   int 80h
 
-  pop ebp
+  POP_ALL
   ret 8
 
 ; Print Menu: Calls print 8 times to print each line of the menu
@@ -118,8 +136,7 @@ print_menu:
 ;       - len_ptr [EBP+8]
 ; Return: None
 read_string:
-  push ebp
-  mov ebp, esp
+  PUSH_ALL
 
   mov eax, 3
   mov ebx, 0
@@ -131,10 +148,8 @@ read_string:
   dec eax ; Removes the newline
   mov [edi], eax
 
-  pop ebp
+  POP_ALL
   ret 8
-
-; Read number:
 
 ; Exit - Performs a system call to exit the program
 ; Args: None. Return: None
