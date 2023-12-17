@@ -163,22 +163,13 @@ read_num_16:
     movzx edx, byte [eax+ecx]
     cmp edx, 0x0A
     je convert_16_done
-    cmp edx,'-'
-    jne convert_16_loop_digit
-    mov edx,1
-  convert_16_loop_digit:
     sub edx,'0'
     imul ebx, ebx, 10
     add ebx, edx
     inc ecx
     jmp convert_16_loop
-  convert_16_sign:
-    mov eax,ebx
-    cmp edx, 0
-    je convert_16_done
-    sub eax, ebx
-    sub eax, ebx
   convert_16_done:
+    mov eax,ebx
 
   pop ebp
   ret
