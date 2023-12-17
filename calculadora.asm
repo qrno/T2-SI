@@ -141,12 +141,15 @@ read_string:
   pop ebp
   ret 8
 
-; Read Number: reads a number from stdin. 16 and 32 bit versions
+; Read Number: reads a number from stdin. 16 bit version
 ; Args: None.
 ; Return: - Value read [eax]
+%define sign ebp-1
 read_num_16:
   push ebp
   mov ebp, esp
+
+  mov byte [sign], 0
 
   mov eax, 3
   mov ebx, 0
@@ -155,20 +158,30 @@ read_num_16:
   int 0x80
 
   convert_16:
-    mov eax, num_buffer
-    mov ebx, 0
-    mov ecx, 0
-    mov edx, 0
+    mov eax, num_buffer ; Buffer
+    mov ebx, 0          ; Value
+    mov ecx, 0          ; Buffer index
+    mov edx, 0          ; Current char
   convert_16_loop:
     movzx edx, byte [eax+ecx]
     cmp edx, 0x0A
     je convert_16_done
+    cmp edx, '-'
+    jne convert_16_loop_pos
+    mov byte [sign], 1
+    inc ecx
+    jmp convert_16_loop
+  convert_16_loop_pos:
     sub edx,'0'
     imul ebx, ebx, 10
     add ebx, edx
     inc ecx
     jmp convert_16_loop
   convert_16_done:
+    cmp byte [sign], 1
+    jne convert_16_done_pos
+    neg ebx
+  convert_16_done_pos:
     mov eax,ebx
 
   pop ebp
