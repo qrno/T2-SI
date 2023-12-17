@@ -1,24 +1,5 @@
 %include "io.mac"
 
-; M
-%macro PUSH_ALL 0
-  push ebp
-  mov ebp, esp
-  push eax
-  push ebx
-  push ecx
-  push edx
-%endmacro
-
-%macro POP_ALL 0
-  pop edx
-  pop ecx
-  pop ebx
-  pop eax
-  pop ebp
-%endmacro
-
-
 section .data
   M_name  db "Bem vindo. Digite seu nome: ",0
   M_name_len dd 29
@@ -50,9 +31,14 @@ section .bss
   user_name resb 100
   user_name_len resd 1
 
+  num_buffer resb 100
+
 section .text
   global _start
 
+;==========================
+; MAIN
+;==========================
 _start:
   push M_name
   push DWORD [M_name_len]
@@ -62,17 +48,19 @@ _start:
   push user_name_len
   call read_string
 
+  ; Greets the user
   push M_hola1
   push DWORD [M_hola1_len]
   call print
-
   push user_name
   push DWORD [user_name_len]
   call print
-
   push M_hola2
   push DWORD [M_hola2_len]
   call print
+
+  call read_num_16
+  PutLInt eax
 
   push M_prec
   push DWORD [M_prec_len]
@@ -91,7 +79,8 @@ _start:
 ;   push DWORD [M_name_len]
 ;   call print
 print:
-  PUSH_ALL
+  push ebp
+  mov ebp, esp
 
   mov eax, 4
   mov ebx, 1
@@ -99,7 +88,7 @@ print:
   mov edx,[ebp + 8]
   int 80h
 
-  POP_ALL
+  pop ebp
   ret 8
 
 ; Print Menu: Calls print 8 times to print each line of the menu
@@ -136,7 +125,8 @@ print_menu:
 ;       - len_ptr [EBP+8]
 ; Return: None
 read_string:
-  PUSH_ALL
+  push ebp
+  mov ebp, esp
 
   mov eax, 3
   mov ebx, 0
@@ -148,8 +138,51 @@ read_string:
   dec eax ; Removes the newline
   mov [edi], eax
 
-  POP_ALL
+  pop ebp
   ret 8
+
+; Read Number: reads a number from stdin. 16 and 32 bit versions
+; Args: None.
+; Return: - Value read [eax]
+read_num_16:
+  push ebp
+  mov ebp, esp
+
+  mov eax, 3
+  mov ebx, 0
+  mov ecx, num_buffer
+  mov edx, 100
+  int 0x80
+
+  convert_16:
+    mov eax, num_buffer
+    mov ebx, 0
+    mov ecx, 0
+    mov edx, 0
+  convert_16_loop:
+    movzx edx, byte [eax+ecx]
+    cmp edx, 0x0A
+    je convert_16_done
+    cmp edx,'-'
+    jne convert_16_loop_digit
+    mov edx,1
+  convert_16_loop_digit:
+    sub edx,'0'
+    imul ebx, ebx, 10
+    add ebx, edx
+    inc ecx
+    jmp convert_16_loop
+  convert_16_sign:
+    mov eax,ebx
+    cmp edx, 0
+    je convert_16_done
+    sub eax, ebx
+    sub eax, ebx
+  convert_16_done:
+
+  pop ebp
+  ret
+
 
 ; Exit - Performs a system call to exit the program
 ; Args: None. Return: None
