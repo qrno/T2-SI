@@ -1,4 +1,4 @@
-%define resultado [ebp-4]
+%define result [ebp-4]
 
 ; Subtracao: Reads two numbers and prints first minus second.
 ; Args: None. Return: None.
@@ -7,12 +7,15 @@ SUBTRACAO:
   mov ebp, esp
 
   sub esp, 4
-  mov dword resultado, 0
+  mov dword result, 0
 
   call read_number
-  add dword resultado, eax
+  add dword result, eax
   call read_number
-  sub dword resultado, eax
+  sub dword result, eax
+
+  push dword result
+  call write_number
 
   call wait_for_enter
 

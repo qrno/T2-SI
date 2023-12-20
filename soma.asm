@@ -1,18 +1,21 @@
 ; Soma: Reads two numbers and prints their sum.
 ; Args: None. Return: None.
-%define soma [ebp-4]
+%define result [ebp-4]
 SOMA:
   push ebp
   mov ebp, esp
 
   sub esp, 4
-  mov dword soma, 0
+  mov dword result, 0
 
-  ; Read both number and add to soma
+  ; Read both numbers and add to result
   call read_number
-  add soma, eax
+  add result, eax
   call read_number
-  add soma, eax
+  add result, eax
+
+  push dword result
+  call write_number
 
   ; Wait for enter
   call wait_for_enter

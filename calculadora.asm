@@ -41,9 +41,6 @@ section .text
 ; MAIN
 ;==========================
 _start:
-  push -123
-  call write_number
-
   push M_name
   push DWORD [M_name_len]
   call print
@@ -69,8 +66,11 @@ MENU_LOOP:
 
   cmp eax, 1
   je OP_SOMA
+  cmp eax, 2
+  je OP_SUBTRACAO
   cmp eax, 7
   je OP_SAIR
+
 OP_SOMA:
   call SOMA
   jmp MENU_LOOP
@@ -222,7 +222,6 @@ read_number:
 ; Return: None.
 %define number [EBP+8]
 %define buffer ESP-12
-%define minus ESP-13
 write_number:
   push ebp
   mov ebp, esp
@@ -250,18 +249,25 @@ write_number:
     div ebx
     add dl, '0'
     mov byte [buffer+ecx], dl
-    inc ecx
+    dec ecx
 
     cmp eax, 0
     jg write_digits
 
-  PutCh [buffer]
+  neg ecx
+  mov edx, ecx
+  neg ecx
+  inc ecx
+  lea ecx, [buffer+ecx]
+  mov eax, 4
+  mov ebx, 1
+  int 0x80
 
   mov eax, 4
   mov ebx, 1
-  mov edx, ecx
-  mov ecx, [buffer]
-  ; edx is correct already
+  mov byte [buffer], 0x0A
+  lea ecx, [buffer]
+  mov edx, 1
   int 0x80
 
   pop ebp
