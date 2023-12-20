@@ -1,4 +1,6 @@
 %include "io.mac"
+%include "soma.asm"
+%include "subtracao.asm"
 
 section .data
   M_name  db "Bem vindo. Digite seu nome: ",0
@@ -7,8 +9,6 @@ section .data
   M_hola1_len dd 7
   M_hola2 db ", bem-vindo ao programa de CALC IA-32",0x0A,0
   M_hola2_len dd 38
-  M_prec  db "Vai trabalhar com 16 ou 32 bits (digite 0 para 16, e 1 para 32):",0
-  M_prec_len dd 65
 
   M_menu_1  db "ESCOLHA UMA OPÇÃO:",0x0A,0
   M_menu_len_1 dd 22
@@ -26,6 +26,7 @@ section .data
   M_menu_len_7 dd 10
   M_menu_8  db "- 7: SAIR",0x0A,0
   M_menu_len_8 dd 11
+  M_minus_sign db "-",0
 
 section .bss
   user_name resb 100
@@ -40,6 +41,9 @@ section .text
 ; MAIN
 ;==========================
 _start:
+  push -123
+  call write_number
+
   push M_name
   push DWORD [M_name_len]
   call print
@@ -59,15 +63,25 @@ _start:
   push DWORD [M_hola2_len]
   call print
 
-  call read_num_16
-  PutLInt eax
-
-  push M_prec
-  push DWORD [M_prec_len]
-  call print
-
+MENU_LOOP:
   call print_menu
+  call read_number
 
+  cmp eax, 1
+  je OP_SOMA
+  cmp eax, 7
+  je OP_SAIR
+OP_SOMA:
+  call SOMA
+  jmp MENU_LOOP
+OP_SUBTRACAO:
+  call SUBTRACAO
+  jmp MENU_LOOP
+OP_MULTIPLICACAO:
+OP_DIVISAO:
+OP_EXPONENCIACAO:
+OP_MOD:
+OP_SAIR:
   call exit
 
 ; Print - Print a string indicated by a pointer
@@ -120,6 +134,22 @@ print_menu:
   call print
   ret
 
+; Wait for enter: Blocks the program until the user presses enter
+; Args: None. Return: None.
+%define buf [ebp-4]
+wait_for_enter:
+  push ebp
+  mov ebp, esp
+
+  mov eax, 3
+  mov ebx, 0
+  lea ecx, buf
+  mov edx, 1
+  int 0x80
+
+  pop ebp
+  ret
+
 ; Read String: Reads a string into a buffer and stores the length read as well
 ; Args: - buffer [EBP+12]
 ;       - len_ptr [EBP+8]
@@ -134,18 +164,18 @@ read_string:
   mov edx, 100
   int 0x80
 
-  mov edi, [ebp+8]
+  mov edi,[ebp+8]
   dec eax ; Removes the newline
   mov [edi], eax
 
   pop ebp
   ret 8
 
-; Read Number: reads a number from stdin. 16 bit version
+; Read Number: reads a number from stdin.
 ; Args: None.
 ; Return: - Value read [eax]
 %define sign ebp-1
-read_num_16:
+read_number:
   push ebp
   mov ebp, esp
 
@@ -157,38 +187,87 @@ read_num_16:
   mov edx, 100
   int 0x80
 
-  convert_16:
+  convert_number:
     mov eax, num_buffer ; Buffer
     mov ebx, 0          ; Value
     mov ecx, 0          ; Buffer index
     mov edx, 0          ; Current char
-  convert_16_loop:
+  convert_number_loop:
     movzx edx, byte [eax+ecx]
     cmp edx, 0x0A
-    je convert_16_done
+    je convert_number_done
     cmp edx, '-'
-    jne convert_16_loop_pos
+    jne convert_number_loop_pos
     mov byte [sign], 1
     inc ecx
-    jmp convert_16_loop
-  convert_16_loop_pos:
+    jmp convert_number_loop
+  convert_number_loop_pos:
     sub edx,'0'
     imul ebx, ebx, 10
     add ebx, edx
     inc ecx
-    jmp convert_16_loop
-  convert_16_done:
+    jmp convert_number_loop
+  convert_number_done:
     cmp byte [sign], 1
-    jne convert_16_done_pos
+    jne convert_number_done_pos
     neg ebx
-  convert_16_done_pos:
+  convert_number_done_pos:
     mov eax,ebx
 
   pop ebp
   ret
 
+; Write number: Writes the number passed from the stack
+; Args: - number [EBP+8]
+; Return: None.
+%define number [EBP+8]
+%define buffer ESP-12
+%define minus ESP-13
+write_number:
+  push ebp
+  mov ebp, esp
 
-; Exit - Performs a system call to exit the program
+  mov eax, number
+  mov ecx, 0
+
+  cmp eax, 0
+  jge write_digits
+  negative:
+    mov eax, 4
+    mov ebx, 1
+    mov ecx, M_minus_sign
+    mov edx, 1
+    int 0x80
+
+    mov eax, number
+    mov ecx, 0
+    neg eax
+    jmp write_digits
+
+  write_digits:
+    mov edx, 0
+    mov ebx, 10
+    div ebx
+    add dl, '0'
+    mov byte [buffer+ecx], dl
+    inc ecx
+
+    cmp eax, 0
+    jg write_digits
+
+  PutCh [buffer]
+
+  mov eax, 4
+  mov ebx, 1
+  mov edx, ecx
+  mov ecx, [buffer]
+  ; edx is correct already
+  int 0x80
+
+  pop ebp
+  ret 4
+
+; Exit:  Performs a system call to exit the program
 ; Args: None. Return: None
 exit:
   mov eax, 1

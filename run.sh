@@ -9,7 +9,7 @@ filename="$1"
 output="${filename%.*}"
 
 echo "Remember to remove io.mac later!!!!!"
-nasm -f elf32 "$filename" -o "${output}.o" -i io.mac
+nasm -f elf32 "$filename" -o "${output}.o"
 if [ $? -ne 0 ]; then
     echo "Error assembling '$filename'"
     exit 1
