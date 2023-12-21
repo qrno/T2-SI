@@ -3,6 +3,7 @@
 %include "multiplicacao.asm"
 %include "divisao.asm"
 %include "mod.asm"
+%include "exponenciacao.asm"
 
 section .data
   M_name  db "Bem vindo. Digite seu nome: ",0
@@ -77,6 +78,8 @@ MENU_LOOP:
   je OP_MULTIPLICACAO
   cmp eax, 4
   je OP_DIVISAO
+  cmp eax, 5
+  je OP_EXPONENCIACAO
   cmp eax, 6
   je OP_MOD
   cmp eax, 7
@@ -95,6 +98,8 @@ OP_DIVISAO:
   call DIVISAO
   jmp MENU_LOOP
 OP_EXPONENCIACAO:
+  call EXPONENCIACAO
+  jmp MENU_LOOP
 OP_MOD:
   call MOD
   jmp MENU_LOOP

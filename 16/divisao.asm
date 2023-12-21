@@ -1,7 +1,7 @@
-; Multiplication: Reads two numbers and prints their product.
+; Division: Reads two numbers and prints their Quotient.
 ; Args: None. Return: None.
 %define result [ebp-4]
-MULTIPLICACAO:
+DIVISAO:
   push ebp
   mov ebp, esp
 
@@ -12,13 +12,15 @@ MULTIPLICACAO:
   call read_number
   add result, eax
   call read_number
-  mul dword result
 
-  jo OVERFLOW
+  mov ebx, eax
+  mov eax, result
+  mov result, ebx
 
-  mov result, eax
+  mov edx, 0
+  idiv dword result
 
-  push dword result
+  push eax
   call write_number
 
   ; Wait for enter
@@ -27,10 +29,3 @@ MULTIPLICACAO:
   mov esp, ebp
   pop ebp
   ret
-
-OVERFLOW:
-  push M_overflow
-  push dword [M_overflow_len]
-  call print
-
-  call exit

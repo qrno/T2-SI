@@ -1,7 +1,7 @@
-; Modulo: Reads two numbers and prints the modulo of the first by the second.
+; Soma: Reads two numbers and prints their sum.
 ; Args: None. Return: None.
 %define result [ebp-4]
-MOD:
+SOMA:
   push ebp
   mov ebp, esp
 
@@ -12,15 +12,9 @@ MOD:
   call read_number
   add result, eax
   call read_number
+  add result, eax
 
-  mov ebx, eax
-  mov eax, result
-  mov result, ebx
-
-  mov edx, 0
-  div dword result
-
-  push edx
+  push dword result
   call write_number
 
   ; Wait for enter

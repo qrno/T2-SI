@@ -1,14 +1,12 @@
-# Checklist: Implementação da Calculadora IA-32
+# Trabalho 2 de SB
 
-- [X] Criar uma função que lê uma string em um buffer
-- [ ] Criar uma função que lê um inteiro e retorna ele no EAX
-    - [ ] Deve ter modos 16 e 32 bits (Não sei se precisam ser duas separadas ou se 
-    - [ ] Deve funcionar com números negativos
-- [ ] Criar as operações
-  - [ ] Cada operação deve estar num arquivo separado (soma.asm, divisao.asm) etc.
-  - [ ] Cada uma deve ler dois inteiros e guardar em variáveis locais
-  - [ ] Realiza a operação e mostra o resultado
-  - [ ] Espera apertar ENTER pra continuar, volta pro menu
-  - [ ] Pra multiplicação e exponenciação checar se tem overflow. Se tiver printa "Ocorreu OVERFLOW" e termina o programa.
+- Eduardo Quirino de Oliveira - 211010305
+- Henrique de Oliveira Ramos  - 211036052
 
-- [ ] Reler a especificação e checar tudo de novo antes de submeter
+Sistema Operacional: Linux
+
+Para rodar o código, execute o arquivo "run.sh"
+Esse programa realizará a compilação e ligação do código
+E executará o executável criado
+
+As versões 16- e 32-bit do programa se encontram em pastas separadas
