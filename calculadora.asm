@@ -1,6 +1,8 @@
-%include "io.mac"
 %include "soma.asm"
 %include "subtracao.asm"
+%include "multiplicacao.asm"
+%include "divisao.asm"
+%include "mod.asm"
 
 section .data
   M_name  db "Bem vindo. Digite seu nome: ",0
@@ -71,6 +73,12 @@ MENU_LOOP:
   je OP_SOMA
   cmp eax, 2
   je OP_SUBTRACAO
+  cmp eax, 3
+  je OP_MULTIPLICACAO
+  cmp eax, 4
+  je OP_DIVISAO
+  cmp eax, 6
+  je OP_MOD
   cmp eax, 7
   je OP_SAIR
 
@@ -81,9 +89,15 @@ OP_SUBTRACAO:
   call SUBTRACAO
   jmp MENU_LOOP
 OP_MULTIPLICACAO:
+  call MULTIPLICACAO
+  jmp MENU_LOOP
 OP_DIVISAO:
+  call DIVISAO
+  jmp MENU_LOOP
 OP_EXPONENCIACAO:
 OP_MOD:
+  call MOD
+  jmp MENU_LOOP
 OP_SAIR:
   call exit
 
