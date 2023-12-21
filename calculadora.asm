@@ -28,6 +28,9 @@ section .data
   M_menu_len_8 dd 11
   M_minus_sign db "-",0
 
+  M_overflow db "OCORREU OVERFLOW",0x0A,0
+  M_overflow_len dd 17
+
 section .bss
   user_name resb 100
   user_name_len resd 1
